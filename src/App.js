@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "./axios";
 import {
+  Button,
   Grid,
   Paper,
   TextField,
@@ -17,6 +18,7 @@ import Typography from "@material-ui/core/Typography";
 const useStyles = makeStyles(() => ({
   root: {
     flexGrow: 1,
+    minHeight: "100vh",
   },
   nav: {
     height: "4rem",
@@ -26,26 +28,66 @@ const useStyles = makeStyles(() => ({
     minHeight: "250px",
     boxShadow: "0 0 20px #00000040",
   },
-  margin: {
-    //width: "90%",
-    //minWidth: "120px",
-  },
 }));
 
 function App() {
   const classes = useStyles();
+  const [inputCurr, setInputCurr] = useState("");
+  const [outputCurr, setOutputCurr] = useState("");
   const [currencies, setCurrencies] = useState([]);
-  /*
+  const [inputSymbol, setIS] = useState("INR");
+  const [outputSymbol, setOS] = useState("USD");
+  const [inputName, setInputName] = useState("");
+  const [outputName, setOutputName] = useState("");
+  const [amount, setAmount] = useState(1);
+  const [result, setResult] = useState(1);
+
   useEffect(() => {
     axios.get("/api/v7/countries?apiKey=26ecc25bbf96165524d3").then((res) => {
       console.log("usd->inr", res.data.results);
       //getting all currencies for selecting
-      setCurrencies(Object.entries(res.data.results));
+      //currencies.map((c) => console.log(c[1].currencyId))
+      setCurrencies(
+        Object.entries(res.data.results).map((c) =>
+          currencies.concat({
+            currencyId: c[1].currencyId,
+            currencyName: c[1].currencyName,
+            currencySymbol: c[1].currencySymbol,
+          })
+        )
+      );
     });
-  }, []);*/
+  }, []);
 
-  const handleChange = (event) => {
-    //setAge(event.target.value);
+  useEffect(() => {
+    const getSymbol = (s) => {
+      for (let i = 0; i < currencies.length; i++) {
+        //console.log("from loop: ", currencies[i][0].currencyId);
+        if (currencies[i][0].currencyId === s) {
+          return currencies[i][0].currencySymbol;
+        }
+      }
+    };
+    const getName = (n) => {
+      for (let i = 0; i < currencies.length; i++) {
+        //console.log("from loop: ", currencies[i][0].currencyId);
+        if (currencies[i][0].currencyId === n) {
+          return currencies[i][0].currencyName;
+        }
+      }
+    };
+
+    setIS(getSymbol(inputCurr));
+    setOS(getSymbol(outputCurr));
+    setInputName(getName(inputCurr));
+    setOutputName(getName(outputCurr));
+  }, [inputCurr, outputCurr]);
+
+  const handleInpCurr = (e) => {
+    setInputCurr(e.target.value);
+  };
+  const handleOutCurr = (e) => {
+    setOutputCurr(e.target.value);
   };
 
   return (
@@ -74,10 +116,10 @@ function App() {
                 gutterBottom
                 style={{ color: "gray" }}
               >
-                1 Indian Rupee equials
+                1 {inputName} equals
               </Typography>
               <Typography variant="h4" gutterBottom>
-                0.013 United State Dollar
+                0.013 {outputName}
               </Typography>
               <Typography
                 variant="subtitle2"
@@ -87,14 +129,21 @@ function App() {
                 {new Date().toLocaleString()}
               </Typography>
               <Grid container spacing={2} style={{ marginTop: "1rem" }}>
-                <Grid item sm={6} xs={5}>
+                <Grid item sm={1} xs={2} style={{ textAlign: "center" }}>
+                  <Typography variant="h5" gutterBottom>
+                    {inputSymbol}
+                  </Typography>
+                </Grid>
+                <Grid item sm={3} xs={10}>
                   <TextField
                     label="input value"
                     type="number"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
                     variant="outlined"
                   />
                 </Grid>
-                <Grid item sm={6} xs={7}>
+                <Grid item sm={6} xs={8}>
                   <FormControl
                     fullWidth
                     variant="outlined"
@@ -104,23 +153,48 @@ function App() {
                     <Select
                       labelId="input-curr"
                       id="demo-customized-select"
-                      onChange={handleChange}
+                      onChange={handleInpCurr}
                     >
                       <MenuItem value="">
                         <em>None</em>
                       </MenuItem>
-                      <MenuItem value={10}>Ten</MenuItem>
-                      <MenuItem value={20}>Twenty</MenuItem>
-                      <MenuItem value={30}>Thirty</MenuItem>
+                      {currencies.map((c) => (
+                        <MenuItem
+                          key={c[0].currencyName}
+                          value={c[0].currencyId}
+                        >
+                          {c[0].currencyName}
+                        </MenuItem>
+                      ))}
                     </Select>
                   </FormControl>
                 </Grid>
-              </Grid>
-              <Grid container spacing={2}>
-                <Grid item sm={6} xs={5}>
-                  <TextField label="output" variant="outlined" disabled />
+                <Grid
+                  item
+                  sm={2}
+                  xs={4}
+                  style={{ display: "flex", alignItems: "center" }}
+                >
+                  <Button variant="contained" color="primary" size="small">
+                    convert
+                  </Button>
                 </Grid>
-                <Grid item sm={6} xs={7}>
+              </Grid>
+              <Grid container spacing={2} style={{ marginTop: "1rem" }}>
+                <Grid item sm={1} xs={1}>
+                  <Typography variant="h5" gutterBottom>
+                    {outputSymbol}
+                  </Typography>
+                </Grid>
+                <Grid item sm={3} xs={4}>
+                  <TextField
+                    label="output"
+                    value={result}
+                    variant="outlined"
+                    disabled
+                  />
+                </Grid>
+                <Grid item sm={8} xs={7}>
                   <FormControl
                     fullWidth
                     variant="outlined"
@@ -130,14 +204,19 @@ function App() {
                     <Select
                       labelId="input-curr"
                       id="demo-customized-select"
-                      onChange={handleChange}
+                      onChange={handleOutCurr}
                     >
                       <MenuItem value="">
                         <em>None</em>
                       </MenuItem>
-                      <MenuItem value={10}>Ten</MenuItem>
-                      <MenuItem value={20}>Twenty</MenuItem>
-                      <MenuItem value={30}>Thirty</MenuItem>
+                      {currencies.map((c) => (
+                        <MenuItem
+                          key={c[0].currencyName}
+                          value={c[0].currencyId}
+                        >
+                          {c[0].currencyName}
+                        </MenuItem>
+                      ))}
                     </Select>
                   </FormControl>
                 </Grid>
@@ -152,7 +231,6 @@ function App() {
           made by Sujoy
         </Typography>
       </Grid>
-      {/*currencies.map((c) => console.log(c[1]))*/}
     </Paper>
   );
 }
