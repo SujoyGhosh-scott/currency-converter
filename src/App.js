@@ -14,6 +14,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
+import { Line } from "react-chartjs-2";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -32,15 +33,19 @@ const useStyles = makeStyles(() => ({
 
 function App() {
   const classes = useStyles();
-  const [inputCurr, setInputCurr] = useState("USD");
-  const [outputCurr, setOutputCurr] = useState("INR");
+  const [inputCurr, setInputCurr] = useState("");
+  const [outputCurr, setOutputCurr] = useState("");
   const [currencies, setCurrencies] = useState([]);
-  const [inputSymbol, setIS] = useState("$");
-  const [outputSymbol, setOS] = useState("₹");
-  const [inputName, setInputName] = useState("U.S. Dollar");
-  const [outputName, setOutputName] = useState("Indian rupee");
+  const [inputSymbol, setIS] = useState("");
+  const [outputSymbol, setOS] = useState("");
+  const [inputName, setInputName] = useState("");
+  const [outputName, setOutputName] = useState("");
   const [amount, setAmount] = useState(1);
   const [result, setResult] = useState(1);
+  const [chart1label, setChart1Label] = useState([]);
+  const [chart1data, setChart1data] = useState([]);
+  const [chart2label, setChart2Label] = useState([]);
+  const [chart2data, setChart2data] = useState([]);
 
   useEffect(() => {
     axios.get("/api/v7/countries?apiKey=26ecc25bbf96165524d3").then((res) => {
@@ -57,11 +62,6 @@ function App() {
         )
       );
     });
-    convert();
-
-    axios
-      .get("/api/v7/currencies?apiKey=26ecc25bbf96165524d3")
-      .then((res) => console.log("countries: ", res.data));
   }, []);
 
   useEffect(() => {
@@ -89,6 +89,7 @@ function App() {
   }, [inputCurr, outputCurr]);
 
   const convert = () => {
+    //api to get the value to convert
     axios
       .get(
         `/api/v7/convert?q=${inputCurr}_${outputCurr}&compact=ultra&apiKey=26ecc25bbf96165524d3`
@@ -97,6 +98,34 @@ function App() {
         console.log("converter: ", Object.entries(res.data)[0][1]);
         //setResult(Math.round(amount * Object.entries(res.data)[0][1], 4));
         setResult(Number(amount * Object.entries(res.data)[0][1]).toFixed(4));
+      });
+
+    //api to get the chart data
+    //for 1 week
+    let today = new Date();
+    let lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    let startDate =
+      lastWeek.getFullYear() +
+      "-" +
+      lastWeek.getMonth() +
+      "-" +
+      lastWeek.getDate();
+    let endDate =
+      today.getFullYear() + "-" + today.getMonth() + "-" + today.getDate();
+    axios
+      .get(
+        `/api/v7/convert?q=${inputCurr}_${outputCurr},${outputCurr}_${inputCurr}&compact=ultra&date=${startDate}&endDate=${endDate}&apiKey=26ecc25bbf96165524d3
+`
+      )
+      .then((res) => {
+        console.log(
+          "chart data: ",
+          Object.values(Object.entries(res.data)[0][1])
+        );
+        setChart1Label(Object.keys(Object.entries(res.data)[0][1]));
+        setChart1data(Object.values(Object.entries(res.data)[0][1]));
+        setChart2Label(Object.keys(Object.entries(res.data)[1][1]));
+        setChart2data(Object.values(Object.entries(res.data)[1][1]));
       });
   };
 
@@ -124,29 +153,59 @@ function App() {
         <Grid item sm={1} xs={1}></Grid>
         <Grid container item sm={10} xs={10} spacing={2}>
           <Grid item sm={6} xs={12}>
-            <Paper className={classes.paper}>chart</Paper>
+            <Paper className={classes.paper}>
+              <Grid>
+                <Line
+                  data={{
+                    labels: chart1label,
+                    datasets: [
+                      {
+                        label: "in last 3mon",
+                        data: chart1data,
+                        borderWidth: 2,
+                        backgroundColor: "#2a9dfa",
+                        borderColor: "#3d8ccc",
+                      },
+                    ],
+                  }}
+                  height={250}
+                  width={350}
+                  options={{
+                    maintainAspectRatio: false,
+                  }}
+                />
+              </Grid>
+            </Paper>
           </Grid>
           <Grid item sm={6} xs={12}>
             <Paper className={classes.paper}>
-              <Typography
-                variant="body1"
-                gutterBottom
-                style={{ color: "gray" }}
-              >
-                {amount} {inputName} equals
-              </Typography>
-              <Typography variant="h4" gutterBottom>
-                {result} {outputName}
-              </Typography>
-              <Typography
-                variant="subtitle2"
-                gutterBottom
-                style={{ color: "gray" }}
-              >
-                {new Date().toLocaleString()}
-              </Typography>
+              {outputCurr ? (
+                <>
+                  <Typography
+                    variant="body1"
+                    gutterBottom
+                    style={{ color: "gray" }}
+                  >
+                    {amount} {inputName} equals
+                  </Typography>
+                  <Typography variant="h4" gutterBottom>
+                    {result} {outputName}
+                  </Typography>
+                  <Typography
+                    variant="subtitle2"
+                    gutterBottom
+                    style={{ color: "gray" }}
+                  >
+                    {new Date().toLocaleString()}
+                  </Typography>
+                </>
+              ) : (
+                <Typography variant="h4" gutterBottom>
+                  select output and input currencies
+                </Typography>
+              )}
               <Grid container spacing={2} style={{ marginTop: "1rem" }}>
-                <Grid item sm={1} xs={2} style={{ textAlign: "center" }}>
+                <Grid item sm={1} xs={1} style={{ textAlign: "center" }}>
                   <Typography variant="h5" gutterBottom>
                     {inputSymbol}
                   </Typography>
