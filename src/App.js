@@ -32,13 +32,13 @@ const useStyles = makeStyles(() => ({
 
 function App() {
   const classes = useStyles();
-  const [inputCurr, setInputCurr] = useState("");
-  const [outputCurr, setOutputCurr] = useState("");
+  const [inputCurr, setInputCurr] = useState("USD");
+  const [outputCurr, setOutputCurr] = useState("INR");
   const [currencies, setCurrencies] = useState([]);
-  const [inputSymbol, setIS] = useState("INR");
-  const [outputSymbol, setOS] = useState("USD");
-  const [inputName, setInputName] = useState("");
-  const [outputName, setOutputName] = useState("");
+  const [inputSymbol, setIS] = useState("$");
+  const [outputSymbol, setOS] = useState("₹");
+  const [inputName, setInputName] = useState("U.S. Dollar");
+  const [outputName, setOutputName] = useState("Indian rupee");
   const [amount, setAmount] = useState(1);
   const [result, setResult] = useState(1);
 
@@ -57,6 +57,11 @@ function App() {
         )
       );
     });
+    convert();
+
+    axios
+      .get("/api/v7/currencies?apiKey=26ecc25bbf96165524d3")
+      .then((res) => console.log("countries: ", res.data));
   }, []);
 
   useEffect(() => {
@@ -82,6 +87,18 @@ function App() {
     setInputName(getName(inputCurr));
     setOutputName(getName(outputCurr));
   }, [inputCurr, outputCurr]);
+
+  const convert = () => {
+    axios
+      .get(
+        `/api/v7/convert?q=${inputCurr}_${outputCurr}&compact=ultra&apiKey=26ecc25bbf96165524d3`
+      )
+      .then((res) => {
+        console.log("converter: ", Object.entries(res.data)[0][1]);
+        //setResult(Math.round(amount * Object.entries(res.data)[0][1], 4));
+        setResult(Number(amount * Object.entries(res.data)[0][1]).toFixed(4));
+      });
+  };
 
   const handleInpCurr = (e) => {
     setInputCurr(e.target.value);
@@ -116,10 +133,10 @@ function App() {
                 gutterBottom
                 style={{ color: "gray" }}
               >
-                1 {inputName} equals
+                {amount} {inputName} equals
               </Typography>
               <Typography variant="h4" gutterBottom>
-                0.013 {outputName}
+                {result} {outputName}
               </Typography>
               <Typography
                 variant="subtitle2"
@@ -159,10 +176,7 @@ function App() {
                         <em>None</em>
                       </MenuItem>
                       {currencies.map((c) => (
-                        <MenuItem
-                          key={c[0].currencyName}
-                          value={c[0].currencyId}
-                        >
+                        <MenuItem key={Date.now()} value={c[0].currencyId}>
                           {c[0].currencyName}
                         </MenuItem>
                       ))}
@@ -175,7 +189,12 @@ function App() {
                   xs={4}
                   style={{ display: "flex", alignItems: "center" }}
                 >
-                  <Button variant="contained" color="primary" size="small">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                    onClick={() => convert()}
+                  >
                     convert
                   </Button>
                 </Grid>
@@ -210,10 +229,7 @@ function App() {
                         <em>None</em>
                       </MenuItem>
                       {currencies.map((c) => (
-                        <MenuItem
-                          key={c[0].currencyName}
-                          value={c[0].currencyId}
-                        >
+                        <MenuItem key={Date.now()} value={c[0].currencyId}>
                           {c[0].currencyName}
                         </MenuItem>
                       ))}
