@@ -107,11 +107,15 @@ function App() {
     let startDate =
       lastWeek.getFullYear() +
       "-" +
-      lastWeek.getMonth() +
+      (lastWeek.getMonth() + 1) +
       "-" +
       lastWeek.getDate();
     let endDate =
-      today.getFullYear() + "-" + today.getMonth() + "-" + today.getDate();
+      today.getFullYear() +
+      "-" +
+      (today.getMonth() + 1) +
+      "-" +
+      today.getDate();
     axios
       .get(
         `/api/v7/convert?q=${inputCurr}_${outputCurr},${outputCurr}_${inputCurr}&compact=ultra&date=${startDate}&endDate=${endDate}&apiKey=26ecc25bbf96165524d3
@@ -154,15 +158,25 @@ function App() {
         <Grid container item sm={10} xs={10} spacing={2}>
           <Grid item sm={6} xs={12}>
             <Paper className={classes.paper}>
+              <button>1wk</button>
+              <button>1mo</button>
+              <span>(select any ont to get more detailed view)</span>
               <Grid>
                 <Line
                   data={{
                     labels: chart1label,
                     datasets: [
                       {
-                        label: "in last 3mon",
+                        label: `${inputCurr}-${outputCurr}`,
                         data: chart1data,
-                        borderWidth: 2,
+                        borderWidth: 1,
+                        backgroundColor: "#2a9dfa",
+                        borderColor: "#3d8ccc",
+                      },
+                      {
+                        label: `${outputCurr}-${inputCurr}`,
+                        data: chart2data,
+                        borderWidth: 1,
                         backgroundColor: "#2a9dfa",
                         borderColor: "#3d8ccc",
                       },
