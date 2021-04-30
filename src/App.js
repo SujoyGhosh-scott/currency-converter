@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from "react";
 import axios from "./axios";
-import {
-  Button,
-  Grid,
-  Paper,
-  TextField,
-  InputLabel,
-  Select,
-  MenuItem,
-  FormControl,
-} from "@material-ui/core";
+import { Line } from "react-chartjs-2";
+
+import Button from "@material-ui/core/Button";
+import Grid from "@material-ui/core/Grid";
+import Paper from "@material-ui/core/Paper";
+import TextField from "@material-ui/core/TextField";
+import InputLabel from "@material-ui/core/InputLabel";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
+import FormControl from "@material-ui/core/FormControl";
 import { makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import { Line } from "react-chartjs-2";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -28,6 +27,28 @@ const useStyles = makeStyles(() => ({
     padding: "1rem",
     minHeight: "250px",
     boxShadow: "0 0 20px #00000040",
+  },
+  chartHeader: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-around",
+    alignItems: "center",
+    color: "gray",
+  },
+  chartButtons: {
+    width: "80%",
+    display: "flex",
+    justifyContent: "space-around",
+  },
+  chartButton: {
+    background: "transparent",
+    color: "gray",
+    border: "1px solid gray",
+    borderRadius: "5px",
+  },
+  selectedButton: {
+    color: "#2a9dfa",
+    border: "1px solid #2a9dfa",
   },
 }));
 
@@ -46,6 +67,7 @@ function App() {
   const [chart1data, setChart1data] = useState([]);
   const [chart2label, setChart2Label] = useState([]);
   const [chart2data, setChart2data] = useState([]);
+  const [chartType, setChartType] = useState("1wk");
 
   useEffect(() => {
     axios.get("/api/v7/countries?apiKey=26ecc25bbf96165524d3").then((res) => {
@@ -103,7 +125,7 @@ function App() {
     //api to get the chart data
     //for 1 week
     let today = new Date();
-    let lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    let lastWeek = new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000);
     let startDate =
       lastWeek.getFullYear() +
       "-" +
@@ -158,9 +180,27 @@ function App() {
         <Grid container item sm={10} xs={10} spacing={2}>
           <Grid item sm={6} xs={12}>
             <Paper className={classes.paper}>
-              <button>1wk</button>
-              <button>1mo</button>
-              <span>(select any ont to get more detailed view)</span>
+              <div className={classes.chartHeader}>
+                <div className={classes.chartButtons}>
+                  <button
+                    onClick={() => setChartType("1wk")}
+                    className={`${classes.chartButton} ${
+                      chartType === "1wk" && classes.selectedButton
+                    }`}
+                  >
+                    1wk
+                  </button>
+                  <button
+                    onClick={() => setChartType("1mo")}
+                    className={`${classes.chartButton} ${
+                      chartType === "1mo" && classes.selectedButton
+                    }`}
+                  >
+                    1mo
+                  </button>
+                </div>
+                <span>(select any ont to get more detailed view)</span>
+              </div>
               <Grid>
                 <Line
                   data={{
