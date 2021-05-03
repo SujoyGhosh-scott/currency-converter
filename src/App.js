@@ -280,11 +280,7 @@ function App() {
                     className={classes.margin}
                   >
                     <InputLabel id="input-curr">Currency</InputLabel>
-                    <Select
-                      labelId="input-curr"
-                      id="demo-customized-select"
-                      onChange={handleInpCurr}
-                    >
+                    <Select labelId="input-curr" onChange={handleInpCurr}>
                       <MenuItem value="">
                         <em>None</em>
                       </MenuItem>
