@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "./axios";
 import { Line } from "react-chartjs-2";
+import env from 'react-dotenv'
 
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
@@ -140,7 +141,7 @@ function App() {
       today.getDate();
     axios
       .get(
-        `/api/v7/convert?q=${inputCurr}_${outputCurr},${outputCurr}_${inputCurr}&compact=ultra&date=${startDate}&endDate=${endDate}&apiKey=26ecc25bbf96165524d3
+        `/api/v7/convert?q=${inputCurr}_${outputCurr},${outputCurr}_${inputCurr}&compact=ultra&date=${startDate}&endDate=${endDate}&apiKey=${process.env.REACT_APP_API_KEY}
 `
       )
       .then((res) => {
