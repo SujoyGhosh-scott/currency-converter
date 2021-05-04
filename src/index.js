@@ -20,10 +20,3 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById("root")
 );
-
-//26ecc25bbf96165524d3
-//https://free.currconv.com/api/v7/currencies?apiKey=26ecc25bbf96165524d3
-//https://free.currconv.com/api/v7/convert?q=USD_INR&compact=ultra&apiKey=26ecc25bbf96165524d3
-//https://free.currconv.com/api/v7/countries?apiKey=26ecc25bbf96165524d3
-//https://free.currconv.com/others/usage?apiKey=26ecc25bbf96165524d3
-//https://free.currconv.com/api/v7/convert?q=USD_PHP,PHP_USD&compact=ultra&date=2021-01-01&endDate=2021-01-08&apiKey=26ecc25bbf96165524d3
